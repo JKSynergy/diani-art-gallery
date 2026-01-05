@@ -123,7 +123,7 @@ export async function GET(request: NextRequest) {
     const response: ApiResponse<PaginatedResponse<Exhibition>> = {
       success: true,
       data: {
-        data: exhibitionsData as Exhibition[],
+        data: exhibitionsData as unknown as Exhibition[],
         pagination: {
           page: validatedParams.page,
           limit: validatedParams.limit,
