@@ -108,10 +108,11 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    // Convert Decimal fields to numbers
+    // Convert Decimal fields to numbers and transform artists array
     const exhibitionsData = exhibitions.map(exhibition => ({
       ...exhibition,
-      registrationFee: exhibition.registrationFee ? Number(exhibition.registrationFee) : undefined
+      registrationFee: exhibition.registrationFee ? Number(exhibition.registrationFee) : undefined,
+      artists: exhibition.artists.map(ea => ea.artist)
     }))
 
     // Calculate pagination info
