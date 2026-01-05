@@ -108,6 +108,12 @@ export async function GET(request: NextRequest) {
       }
     })
 
+    // Convert Decimal fields to numbers
+    const exhibitionsData = exhibitions.map(exhibition => ({
+      ...exhibition,
+      registrationFee: exhibition.registrationFee ? Number(exhibition.registrationFee) : undefined
+    }))
+
     // Calculate pagination info
     const totalPages = Math.ceil(total / validatedParams.limit)
     const hasNext = validatedParams.page < totalPages
@@ -116,7 +122,7 @@ export async function GET(request: NextRequest) {
     const response: ApiResponse<PaginatedResponse<Exhibition>> = {
       success: true,
       data: {
-        data: exhibitions as Exhibition[],
+        data: exhibitionsData as Exhibition[],
         pagination: {
           page: validatedParams.page,
           limit: validatedParams.limit,
