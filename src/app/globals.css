@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
+
+:root {
+  --foreground-rgb: 33, 37, 41;
+  --background-start-rgb: 248, 249, 250;
+  --background-end-rgb: 248, 249, 250;
+  --primary-rgb: 0, 109, 119;
+  --accent-rgb: 244, 162, 97;
+  --warm-sand-rgb: 233, 196, 106;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 248, 249, 250;
+    --background-start-rgb: 0, 109, 119;
+    --background-end-rgb: 0, 45, 50;
+  }
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary-500 hover:bg-primary-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 shadow-sm hover:shadow-md;
+  }
+  
+  .btn-secondary {
+    @apply bg-accent-400 hover:bg-accent-500 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 shadow-sm hover:shadow-md;
+  }
+  
+  .btn-outline {
+    @apply border border-primary-500 hover:border-primary-600 text-primary-600 hover:text-white hover:bg-primary-500 font-medium py-2 px-4 rounded-lg transition-all duration-200;
+  }
+
+  .coastal-gradient {
+    @apply bg-gradient-to-br from-primary-500 to-primary-700;
+  }
+
+  .warm-gradient {
+    @apply bg-gradient-to-br from-accent-400 to-accent-600;
+  }
+}

@@ -1,0 +1,338 @@
+// Diani Art Gallery Database Schema
+// Comprehensive schema for art gallery management
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User Management
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  firstName     String
+  lastName      String
+  phone         String?
+  dateOfBirth   DateTime?
+  country       String?
+  city          String?
+  address       String?
+  postalCode    String?
+  password      String
+  role          UserRole  @default(CUSTOMER)
+  emailVerified DateTime?
+  image         String?
+  newsletter    Boolean   @default(false)
+  preferences   Json?     // Store user preferences as JSON
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  orders        Order[]
+  inquiries     Inquiry[]
+  wishlist      WishlistItem[]
+  reviews       Review[]
+  exhibitions   ExhibitionRegistration[]
+  
+  @@map("users")
+}
+
+enum UserRole {
+  CUSTOMER
+  ARTIST
+  ADMIN
+  SUPER_ADMIN
+}
+
+// Artist Management
+model Artist {
+  id           String       @id @default(cuid())
+  name         String
+  slug         String       @unique
+  email        String?      @unique
+  phone        String?
+  bio          String?
+  country      String
+  city         String?
+  website      String?
+  instagram    String?
+  image        String?
+  featured     Boolean      @default(false)
+  verified     Boolean      @default(false)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  
+  // Relations
+  artworks     Artwork[]
+  exhibitions  ExhibitionArtist[]
+  applications ArtistApplication[]
+  
+  @@map("artists")
+}
+
+// Artwork Management
+model Artwork {
+  id                  String          @id @default(cuid())
+  title               String
+  slug                String          @unique
+  description         String
+  medium              String
+  dimensions          String
+  year                Int
+  price               Decimal
+  currency            String          @default("USD")
+  image               String
+  additionalImages    String[]
+  available           Boolean         @default(true)
+  featured            Boolean         @default(false)
+  category            ArtworkCategory
+  style               String?
+  technique           String?
+  subject             String?
+  weight              Decimal?
+  condition           String          @default("Excellent")
+  provenance          String?
+  exhibition_history  String?
+  literature          String?
+  signature           String?
+  frame               Boolean         @default(false)
+  certificate         Boolean         @default(false)
+  views               Int             @default(0)
+  likes               Int             @default(0)
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+  
+  // Relations
+  artist              Artist          @relation(fields: [artistId], references: [id])
+  artistId            String
+  orderItems          OrderItem[]
+  exhibitionArtworks  ExhibitionArtwork[]
+  wishlistItems       WishlistItem[]
+  
+  @@map("artworks")
+}
+
+enum ArtworkCategory {
+  PAINTING
+  SCULPTURE
+  PHOTOGRAPHY
+  MIXED_MEDIA
+  DIGITAL
+  PRINT
+  TEXTILE
+  CERAMIC
+  JEWELRY
+  OTHER
+}
+
+
+// Exhibition Management
+model Exhibition {
+  id                    String                    @id @default(cuid())
+  title                 String
+  slug                  String                    @unique
+  description           String
+  image                 String
+  startDate             DateTime
+  endDate               DateTime
+  location              String
+  curator               String?
+  featured              Boolean                   @default(false)
+  status                ExhibitionStatus          @default(UPCOMING)
+  registrationRequired  Boolean                   @default(false)
+  registrationFee       Decimal?
+  maxAttendees          Int?
+  currentAttendees      Int                       @default(0)
+  tags                  String[]
+  createdAt             DateTime                  @default(now())
+  updatedAt             DateTime                  @updatedAt
+  
+  // Relations
+  artists               ExhibitionArtist[]
+  artworks              ExhibitionArtwork[]
+  registrations         ExhibitionRegistration[]
+  
+  @@map("exhibitions")
+}
+
+enum ExhibitionStatus {
+  UPCOMING
+  CURRENT
+  PAST
+  CANCELLED
+}
+
+model ExhibitionArtist {
+  exhibition   Exhibition @relation(fields: [exhibitionId], references: [id], onDelete: Cascade)
+  exhibitionId String
+  artist       Artist     @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  artistId     String
+  
+  @@id([exhibitionId, artistId])
+  @@map("exhibition_artists")
+}
+
+model ExhibitionArtwork {
+  exhibition   Exhibition @relation(fields: [exhibitionId], references: [id], onDelete: Cascade)
+  exhibitionId String
+  artwork      Artwork    @relation(fields: [artworkId], references: [id], onDelete: Cascade)
+  artworkId    String
+  
+  @@id([exhibitionId, artworkId])
+  @@map("exhibition_artworks")
+}
+
+model ExhibitionRegistration {
+  id              String          @id @default(cuid())
+  registrationDate DateTime       @default(now())
+  paymentStatus   PaymentStatus   @default(PENDING)
+  paymentId       String?
+  notes           String?
+  
+  user            User            @relation(fields: [userId], references: [id])
+  userId          String
+  exhibition      Exhibition      @relation(fields: [exhibitionId], references: [id])
+  exhibitionId    String
+  
+  @@map("exhibition_registrations")
+}
+
+// E-commerce
+model Order {
+  id              String          @id @default(cuid())
+  orderNumber     String          @unique
+  totalAmount     Decimal
+  currency        String          @default("USD")
+  status          OrderStatus     @default(PENDING)
+  paymentMethod   PaymentMethod?
+  paymentStatus   PaymentStatus   @default(PENDING)
+  paymentId       String?
+  stripePaymentIntentId String?
+  mpesaCode       String?
+  pesapalOrderId  String?
+  
+  // Address information stored as JSON
+  shippingAddress Json
+  billingAddress  Json?
+  
+  shippingMethod  ShippingMethod
+  shippingCost    Decimal         @default(0)
+  taxAmount       Decimal         @default(0)
+  discountAmount  Decimal?
+  discountCode    String?
+  estimatedDelivery DateTime?
+  actualDelivery  DateTime?
+  notes           String?
+  
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  // Relations
+  user            User?           @relation(fields: [userId], references: [id])
+  userId          String?
+  items           OrderItem[]
+  
+  @@map("orders")
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  STRIPE
+  MPESA
+  PESAPAL
+  BANK_TRANSFER
+}
+
+enum ShippingMethod {
+  STANDARD
+  EXPRESS
+  OVERNIGHT
+  PICKUP
+  WHITE_GLOVE
+}
+
+model OrderItem {
+  id                    String            @id @default(cuid())
+  quantity              Int               @default(1)
+  unitPrice             Decimal
+  totalPrice            Decimal
+  reservationType       ReservationType?
+  reservationExpiresAt  DateTime?
+  createdAt             DateTime          @default(now())
+  
+  order                 Order             @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId               String
+  artwork               Artwork           @relation(fields: [artworkId], references: [id])
+  artworkId             String
+  
+  @@map("order_items")
+}
+
+enum ReservationType {
+  DEPOSIT
+  FULL_PAYMENT
+}
+
+// Wishlist
+model WishlistItem {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  artwork   Artwork  @relation(fields: [artworkId], references: [id], onDelete: Cascade)
+  artworkId String
+  
+  @@unique([userId, artworkId])
+  @@map("wishlist_items")
+}
+
+// Newsletter Subscriptions
+model NewsletterSubscription {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  firstName     String?
+  lastName      String?
+  preferences   Json?     // Store preferences as JSON
+  status        String    @default("ACTIVE") // ACTIVE, UNSUBSCRIBED, BOUNCED
+  subscribedAt  DateTime  @default(now())
+  unsubscribedAt DateTime?
+  
+  @@map("newsletter_subscriptions")
+}
+
+// Contact forms and inquiries
+model ContactForm {
+  id              String    @id @default(cuid())
+  name            String
+  email           String
+  phone           String?
+  subject         String
+  message         String
+  artworkInquiry  String?
+  createdAt       DateTime  @default(now())
+  
+  @@map("contact_forms")
+}
