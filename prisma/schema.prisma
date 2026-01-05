@@ -34,7 +34,6 @@ model User {
   // Relations
   orders        Order[]
   wishlist      WishlistItem[]
-  reviews       Review[]
   exhibitions   ExhibitionRegistration[]
   
   @@map("users")
@@ -68,7 +67,6 @@ model Artist {
   // Relations
   artworks     Artwork[]
   exhibitions  ExhibitionArtist[]
-  applications ArtistApplication[]
   
   @@map("artists")
 }
