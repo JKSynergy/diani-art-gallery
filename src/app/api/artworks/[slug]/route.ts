@@ -44,9 +44,16 @@ export async function GET(
       data: { views: { increment: 1 } }
     })
 
+    // Convert Decimal fields to numbers for API response
+    const artworkData = {
+      ...artwork,
+      price: Number(artwork.price),
+      weight: artwork.weight ? Number(artwork.weight) : undefined
+    }
+
     const response: ApiResponse<Artwork> = {
       success: true,
-      data: artwork as Artwork
+      data: artworkData as Artwork
     }
 
     return NextResponse.json(response)

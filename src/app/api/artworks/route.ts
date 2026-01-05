@@ -141,6 +141,13 @@ export async function GET(request: NextRequest) {
       }
     })
 
+    // Convert Decimal fields to numbers
+    const artworksData = artworks.map(artwork => ({
+      ...artwork,
+      price: Number(artwork.price),
+      weight: artwork.weight ? Number(artwork.weight) : undefined
+    }))
+
     // Calculate pagination info
     const totalPages = Math.ceil(total / validatedParams.limit)
     const hasNext = validatedParams.page < totalPages
@@ -149,7 +156,7 @@ export async function GET(request: NextRequest) {
     const response: ApiResponse<PaginatedResponse<Artwork>> = {
       success: true,
       data: {
-        data: artworks as Artwork[],
+        data: artworksData as Artwork[],
         pagination: {
           page: validatedParams.page,
           limit: validatedParams.limit,
