@@ -33,7 +33,6 @@ model User {
   
   // Relations
   orders        Order[]
-  inquiries     Inquiry[]
   wishlist      WishlistItem[]
   reviews       Review[]
   exhibitions   ExhibitionRegistration[]
