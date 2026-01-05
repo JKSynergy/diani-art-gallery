@@ -1,26 +1,3 @@
 {
-  "buildCommand": "prisma generate && next build",
-  "env": {
-    "DATABASE_URL": {
-      "required": true
-    },
-    "NEXTAUTH_SECRET": {
-      "required": true
-    },
-    "NEXTAUTH_URL": {
-      "required": true
-    },
-    "STRIPE_PUBLIC_KEY": {
-      "required": false
-    },
-    "STRIPE_SECRET_KEY": {
-      "required": false
-    },
-    "MPESA_API_KEY": {
-      "required": false
-    },
-    "PESAPAL_API_KEY": {
-      "required": false
-    }
-  }
+  "buildCommand": "prisma generate && next build"
 }
